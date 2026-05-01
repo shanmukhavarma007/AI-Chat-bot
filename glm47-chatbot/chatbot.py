@@ -70,11 +70,11 @@ async def call_glm47(messages: list[dict], enable_thinking: bool) -> dict:
         "model": settings.NIM_MODEL,
         "messages": messages,
         "temperature": 0.6,
-        "max_tokens": 1024,
+        "max_tokens": 256,
         "chat_template_kwargs": {"thinking": enable_thinking},
     }
 
-    async with httpx.AsyncClient(timeout=settings.REQUEST_TIMEOUT_SECONDS) as client:
+    async with httpx.AsyncClient(timeout=httpx.Timeout(settings.REQUEST_TIMEOUT_SECONDS, connect=30.0)) as client:
         try:
             response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
