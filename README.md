@@ -188,6 +188,18 @@ pytest tests/test_chatbot.py -v
 # With coverage
 pytest tests/ --cov
 ```
+## Curl Command to set Webhook
+curl -X POST "https://api.telegram.org/botYOUR_TOKEN/setWebhook" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://ai-chat-bot-hxkx.onrender.com/telegram"}'
+
+## Curl Command to get webhook info
+curl "https://api.telegram.org/botYOUR_TOKEN/getWebhookInfo"
+
+## Curl Command to interact with chatbot 
+curl -X POST https://ai-chat-bot-hxkx.onrender.com/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":"test","message":"Hello!"}'
 
 ## Docker
 
