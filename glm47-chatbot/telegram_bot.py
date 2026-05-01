@@ -33,6 +33,8 @@ async def handle_message(update: Update, context):
     user_id = str(update.effective_user.id)
     message = update.message.text
 
+    await update.message.reply_text("Thinking...")
+
     try:
         result = await chatbot.process_message(
             user_id=user_id,
@@ -42,7 +44,9 @@ async def handle_message(update: Update, context):
         await update.message.reply_text(result["reply"])
     except Exception as e:
         logger.error(f"Error handling message: {e}", exc_info=True)
-        await update.message.reply_text("Sorry, something went wrong. Please try again.")
+        await update.message.reply_text(
+            "Sorry, the response took too long. Please try again with a shorter question."
+        )
 
 
 def _build_application() -> Application:
