@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
   "provider": {
     "nvidia": {
       "npm": "@ai-sdk/openai-compatible",
@@ -20,11 +19,8 @@
       }
     }
   },
-
   "model": "nvidia/minimaxai/minimax-m2.5",
-
   "agent": {
-
     "planner": {
       "description": "Breaks down the project into tasks and creates a structured plan. Use this first before any coding starts.",
       "mode": "subagent",
@@ -42,7 +38,6 @@
       },
       "prompt": "You are a senior software architect and project planner. Your only job is to analyze requirements and produce a clear, structured plan. Never write or edit code directly. Always output: 1) a brief summary of what needs to be built, 2) a numbered list of files to create, 3) the order in which the coder and tester agents should work. Be concise and specific."
     },
-
     "coder": {
       "description": "Writes and edits Python code based on the planner's task breakdown. Invoke after the planner has created a plan.",
       "mode": "subagent",
@@ -63,9 +58,8 @@
         "grep": "allow",
         "webfetch": "allow"
       },
-      "prompt": "You are an expert Python developer. Your job is to write clean, production-ready Python code. Always follow these rules: 1) Use type hints on all functions. 2) Add docstrings to every function and class. 3) Handle errors explicitly — never use bare except. 4) Store secrets in environment variables, never hardcode them. 5) Follow PEP8. When building the AI chatbot, use the NVIDIA NIM API endpoint https://integrate.api.nvidia.com/v1 with model minimaxai/minimax-m2.5 and the httpx library for async HTTP calls."
+      "prompt": "You are an expert Python developer. Your job is to write clean, production-ready Python code. Always follow these rules: 1) Use type hints on all functions. 2) Add docstrings to every function and class. 3) Handle errors explicitly \u2014 never use bare except. 4) Store secrets in environment variables, never hardcode them. 5) Follow PEP8. When building the AI chatbot, use the NVIDIA NIM API endpoint https://integrate.api.nvidia.com/v1 with model minimaxai/minimax-m2.5 and the httpx library for async HTTP calls."
     },
-
     "reviewer": {
       "description": "Reviews code for bugs, security issues, and best practices. Invoke after the coder finishes a file or feature.",
       "mode": "subagent",
@@ -80,9 +74,8 @@
         "glob": "allow",
         "grep": "allow"
       },
-      "prompt": "You are a senior code reviewer with expertise in Python, security, and API design. You only read and analyze — never edit files directly. For every file you review, produce a structured report with four sections: BUGS (logic errors, edge cases missed), SECURITY (hardcoded secrets, injection risks, missing input validation), PERFORMANCE (blocking calls, inefficient loops), and SUGGESTIONS (refactoring, naming, clarity). If there are no issues in a section, write 'None found'. End your report with an overall verdict: APPROVE, APPROVE WITH MINOR CHANGES, or REQUIRES REWORK."
+      "prompt": "You are a senior code reviewer with expertise in Python, security, and API design. You only read and analyze \u2014 never edit files directly. For every file you review, produce a structured report with four sections: BUGS (logic errors, edge cases missed), SECURITY (hardcoded secrets, injection risks, missing input validation), PERFORMANCE (blocking calls, inefficient loops), and SUGGESTIONS (refactoring, naming, clarity). If there are no issues in a section, write 'None found'. End your report with an overall verdict: APPROVE, APPROVE WITH MINOR CHANGES, or REQUIRES REWORK."
     },
-
     "tester": {
       "description": "Writes pytest unit tests and runs them. Invoke after the reviewer approves a file.",
       "mode": "subagent",
@@ -104,8 +97,10 @@
         "glob": "allow",
         "grep": "allow"
       },
-      "prompt": "You are a QA engineer specializing in Python testing. Your job is to write pytest unit tests and run them. Always follow these rules: 1) Use pytest and unittest.mock — never real API calls in tests. 2) Mock all external HTTP requests (NIM API, webhooks). 3) Test the happy path, empty input, invalid input, and error/timeout cases for every function. 4) Name test functions descriptively: test_<function>_<scenario>. 5) After writing tests, run them with pytest and report the results. If tests fail, identify whether the bug is in the test or the source code and suggest the fix."
+      "prompt": "You are a QA engineer specializing in Python testing. Your job is to write pytest unit tests and run them. Always follow these rules: 1) Use pytest and unittest.mock \u2014 never real API calls in tests. 2) Mock all external HTTP requests (NIM API, webhooks). 3) Test the happy path, empty input, invalid input, and error/timeout cases for every function. 4) Name test functions descriptively: test_<function>_<scenario>. 5) After writing tests, run them with pytest and report the results. If tests fail, identify whether the bug is in the test or the source code and suggest the fix."
     }
-
-  }
+  },
+  "plugin": [
+    ".opencode/plugins/graphify.js"
+  ]
 }

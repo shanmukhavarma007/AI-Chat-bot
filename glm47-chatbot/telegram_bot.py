@@ -8,6 +8,8 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
+telegram_app: Application | None = None
+
 
 async def start_command(update: Update, context):
     await update.message.reply_text(
@@ -43,17 +45,41 @@ async def handle_message(update: Update, context):
         await update.message.reply_text("Sorry, something went wrong. Please try again.")
 
 
-async def start_telegram_bot():
-    if not settings.TELEGRAM_BOT_TOKEN:
-        logger.info("TELEGRAM_BOT_TOKEN not set, skipping telegram bot")
-        return
-
-    logger.info("Starting Telegram bot")
-
+def _build_application() -> Application:
     application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).build()
-
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("clear", clear_command))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    return application
 
-    await application.run_polling(allowed_updates=Update.TYPES)
+
+async def start_webhook_mode() -> Application:
+    global telegram_app
+    if not settings.TELEGRAM_BOT_TOKEN:
+        return None
+    telegram_app = _build_application()
+    await telegram_app.initialize()
+    await telegram_app.start()
+    return telegram_app
+
+
+async def stop_webhook_mode():
+    global telegram_app
+    await telegram_app.stop()
+    await telegram_app.shutdown()
+    telegram_app = None
+
+
+async def process_update(update_data: dict):
+    update = Update.de_json(update_data, telegram_app.bot)
+    await telegram_app.process_update(update)
+
+
+async def start_polling_mode():
+    application = _build_application()
+    await application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(start_polling_mode())

@@ -1,10 +1,12 @@
 import logging
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 import chatbot
+import telegram_bot
 from config import settings
 from models import (
     ErrorResponse,
@@ -15,7 +17,20 @@ from models import (
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="GLM-4.7 NIM Chatbot", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await telegram_bot.start_webhook_mode()
+    yield
+    await telegram_bot.stop_webhook_mode()
+
+
+app = FastAPI(
+    title="GLM-4.7 NIM Chatbot",
+    version="1.0.0",
+    description="AI chatbot powered by z-ai/glm-4.7 via NVIDIA NIM",
+    lifespan=lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -79,6 +94,13 @@ async def webhook(request: WebhookRequest):
     except Exception as e:
         logger.error(f"Unexpected error in webhook: {e}", exc_info=True)
         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+
+
+@app.post("/telegram")
+async def telegram_webhook(request: Request):
+    data = await request.json()
+    await telegram_bot.process_update(data)
+    return {"ok": True}
 
 
 if __name__ == "__main__":
